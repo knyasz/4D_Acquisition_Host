@@ -26,9 +26,15 @@ int main(int argc, char **argv) {
 	udpSocket.openSocket();
 	TUByte* buff = new TUByte[KINECT_FRAME_SIZE];
 	while (!die) {
-		static TUDWord size;
-		size = KINECT_FRAME_SIZE;
-		udpSocket.reciveData(buff,size);
+		TUByte* buffIterator = buff;
+		TUByte* buffEnd = buff + KINECT_FRAME_SIZE;
+		static TUDWord size = KINECT_FRAME_SIZE;
+//		size = KINECT_FRAME_SIZE;
+		for(;buffIterator < buffEnd ; buffIterator+size){
+			cout<<endl<<"Buffiterator is : "<<static_cast<void*>(buffIterator)<<endl;
+			cout<<endl<<"Received already: "<<(buffIterator - buff)<<endl;
+			udpSocket.reciveData(buff,size);
+		}
 		depthf.data = buff;
 		cv::imshow("depth",depthf);
 	}
