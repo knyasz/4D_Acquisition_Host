@@ -12,6 +12,9 @@
 #include <sys/select.h>
 #include "udpSocket.h"
 
+//tiny xml include
+#include <tinyxml.h>
+
 //using section
 using namespace NUdpSocket;
 
@@ -157,14 +160,14 @@ bool CUdpSocket::sendData(TUByte* buffer, TUDWord size)
 //        to - timeout in mili seconds
 //return: true if recived ok false if not 
 ///////////////////////////////////////
-bool CUdpSocket::reciveData(TUByte* buffer, TUDWord& size,TSDWord to)
+bool CUdpSocket::reciveData( TUByte*  buffer, TUDWord& size,TSDWord to)
 {
     bool rv(false);
     struct sockaddr_in currCli;
     static TUDWord clientLen(sizeof(currCli));
     TSDWord status(1);
   
-    memset(buffer,0,size);
+    //memset(buffer,0,size);
     
     if (to != WAIT_FOREVER)
     {
@@ -177,10 +180,11 @@ bool CUdpSocket::reciveData(TUByte* buffer, TUDWord& size,TSDWord to)
     
     if (status > 0)
     {
-        status = handelError(recvfrom(m_socket,buffer,m_maxDataSize,0,
+        status = handelError(recvfrom(m_socket,buffer,size,0,
                                             (struct sockaddr *) &currCli,&clientLen));
         if (status > 0)
         {
+        	size=status;
             if (m_tgtAdd.sin_addr.s_addr == currCli.sin_addr.s_addr)
             {
                 rv = true;
@@ -208,4 +212,80 @@ int CUdpSocket::handelError(const int errorNum, const char* errorStr)
     return errorNum;
 }
     
+
+////////////////////////////////////////
+//name  : initFromFile
+//desc  : inits socket from xml file
+//arg   : fileName - file to read from
+//        socketName - name of the current socket
+//return: true if sent ok false if not
+///////////////////////////////////////
+bool CUdpSocket::initFromFile(const char* fileName, const char* socketName)
+{
+	bool rv(false);
+	SSocketConfig conf;
+
+	if ((fileName) && (socketName))
+	{
+		TiXmlDocument doc(fileName);
+		if (doc.LoadFile())
+		{
+			TiXmlElement* elem(NULL);
+			TiXmlNode* nod(NULL);
+			nod = doc.FirstChild(socketName);
+			if (nod)
+			{
+				elem = nod->ToElement();
+				if (elem)
+				{
+					elem = elem->FirstChildElement("Active");
+					TUByte isActive(atoi(elem->Value()));
+					if (isActive)
+					{
+						elem = elem->FirstChildElement("Properties");
+						if (elem)
+						{
+							if (elem->Attribute("LocalIp"))
+							{
+								strcpy(conf.locIP,elem->Attribute("LocalIp"));
+								if (elem->Attribute("TgtIp"))
+								{
+									strcpy(conf.tgtIP,elem->Attribute("TgtIp"));
+									if (elem->Attribute("LocalPort"))
+									{
+										conf.locPort = atoi(elem->Attribute("LocalPort"));
+										if (elem->Attribute("TgtPort"))
+										{
+											conf.tgtPort = atoi(elem->Attribute("TgtPort"));
+											if (elem->Attribute("MaxBlockSize"))
+											{
+												conf.maxDataSize = atoi(elem->Attribute("MaxBlockSize"));
+												strcpy(conf.name,socketName);
+												rv = true;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (rv)
+		{
+			if (!configureSocket(conf))
+			{
+				rv = false;
+			}
+		}
+		else
+		{
+			handelError(-1,socketName);
+		}
+	}
+
+	return rv;
+}
      

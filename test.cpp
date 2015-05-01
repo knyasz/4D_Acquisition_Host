@@ -127,8 +127,6 @@ int main(int argc, char **argv) {
 	namedWindow("depth",CV_WINDOW_AUTOSIZE);
 	device.startVideo();
 	device.startDepth();
-	printf("Hello im udpShow \n");
-	exit(0);
 	while (!die) {
 		device.getVideo(rgbMat);
 		device.getDepth(depthMat);

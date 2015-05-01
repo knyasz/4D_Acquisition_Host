@@ -56,6 +56,17 @@ namespace NUdpSocket
             strcpy(name,myName);  
             maxDataSize = dataSize;
         }
+
+        SSocketConfig()
+        {
+        	memset(locIP,0,MAX_NUM_CHARS);
+        	memset(tgtIP,0,MAX_NUM_CHARS);
+        	locPort = 0;
+        	tgtPort = 0;
+        	memset(name,0,MAX_NUM_CHARS);
+        	maxDataSize = 0;
+        }
+
     };
     
     //////////////////////////////////////////////////////
@@ -111,7 +122,16 @@ namespace NUdpSocket
         //        size - the size of the buffer to send
         //return: true if sent ok false if not 
         ///////////////////////////////////////
-        bool sendData(TUByte* buffer, TUDWord size);   
+        bool sendData(TUByte* buffer, TUDWord size);
+
+        ////////////////////////////////////////
+        //name  : initFromFile
+        //desc  : inits socket from xml file
+        //arg   : fileName - file to read from
+        //        socketName - name of the current socket
+        //return: true if sent ok false if not
+        ///////////////////////////////////////
+        bool initFromFile(const char* fileName, const char* socketName);
         
         ////////////////////////////////////////
         //name  : isConfiguref
