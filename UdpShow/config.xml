@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Kinect1>
+<Active> "1" </Active>
+<Properties
+	LocalIp="10.0.0.1"
+	TgtIp="10.0.0.2"
+	LocalPort="50555"
+	TgtPort="50555"
+	MaxBlockSize="307200"> 
+</Properties>
+</Kinect1>

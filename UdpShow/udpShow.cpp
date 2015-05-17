@@ -22,8 +22,8 @@ int main(int argc, char **argv) {
 	Mat RGB(Size(640,480),CV_8UC3);
 	Mat jpgRead(Size(640,480),CV_8UC1);
 	//FILE* rcvdData;
-//	std::string winName("depth");
-	std::string winName("RGB");
+	std::string winName("depth");
+//	std::string winName("RGB");
 	std::string jpgLoad("jpg");
 	namedWindow(winName,CV_WINDOW_AUTOSIZE);
 	//namedWindow(jpgLoad,CV_WINDOW_AUTOSIZE);
@@ -72,8 +72,8 @@ int main(int argc, char **argv) {
 
 
 
-//		depthf.data = (buff);
-		RGB.data = buff;
+		depthf.data = (buff);
+//		RGB.data = buff;
 
 		//rcvdData = fopen("/home/alexandalex/kinect/UdpShow/rcvdData.bin","wb");
 		//perror("err");
@@ -85,8 +85,10 @@ int main(int argc, char **argv) {
 		//jpgRead = cv::imread("birds.jpg",CV_LOAD_IMAGE_GRAYSCALE);
 		//Mat test;
 		//test = cv::imread("birds.jpg",CV_LOAD_IMAGE_GRAYSCALE);
-		cv::imshow(winName,RGB);
-//		cv::imshow(winName,depthf);
+
+//		cv::imshow(winName,RGB);
+		cv::imshow(winName,depthf);
+
 		cv::waitKey(5);
 		//if (!test.empty())
 		//{
