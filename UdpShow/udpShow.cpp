@@ -43,12 +43,17 @@ int main(int argc, char **argv) {
 	if (!result){
 		return -1;
 	}
-		TUDWord flushSize = 60000;
-		TUByte* flush = new TUByte[flushSize];
-		TUDWord count(0);
+/* what is this for ???? **************************/
+	TUDWord flushSize = 60000;
+	TUByte* flush = new TUByte[flushSize];
+	TUDWord count(0);
 	while(udpSocket.reciveData(flush,flushSize,10000) && count < 300){ count++; }
-	uint bufferSize = KINECT_FRAME_SIZE*3;
-//	uint bufferSize = KINECT_FRAME_SIZE;
+/**************************************************/
+
+
+
+//	uint bufferSize = KINECT_FRAME_SIZE*3;//Used for RGB stream
+	uint bufferSize = KINECT_FRAME_SIZE;
 
 	TUByte* buff = new TUByte[bufferSize];
 	TUByte* buffEnd = buff + bufferSize;
