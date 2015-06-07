@@ -66,6 +66,20 @@ bool CUdpSocket::configureSocket(const SSocketConfig &config)
                rv = false;
             }
 
+            size_t opeLen(sizeof(TUDWord));
+            TSDWord res(setsockopt(m_socket, SOL_SOCKET, SO_SNDBUF, &(config.trxBufferSize),optLen));
+            if (res != 0)
+            {
+            	(void)handelError(-1);
+            	rv = false;
+            }
+
+            res = setsockopt(m_socket, SOL_SOCKET, SO_RCVBUF, &(config.rcvBufferSize),optLen);
+            if (res != 0)
+            {
+               (void)handelError(-1);
+               rv = false;
+            }
         }
 
         if (rv)

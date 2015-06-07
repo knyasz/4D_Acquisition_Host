@@ -33,6 +33,14 @@ namespace NUdpSocket
     static const TUDWord MAX_NUM_CHARS(255);
     static const TUDWord KINECT_FRAME_SIZE(640*480);
     
+    //enum that defines posible socket buffer sizes
+    enum ESockBufferSizes
+    {
+    	BUFFER_65K  = 1024*65,
+    	BUFFER_64M  = 1024*1024*64,
+    	BUFFER_128M = 1024*1024*128
+    };
+
     //structure that configures the 
     struct SSocketConfig
     {
@@ -42,10 +50,13 @@ namespace NUdpSocket
         TSDWord tgtPort;
         char name[255];
         TSDWord maxDataSize;
+        TUDWord rcvBufferSize;
+        TUDWord trxBufferSize;
         
         //ctor
         SSocketConfig(TString myIP,TString secIP, TSDWord aLocPort, TSDWord aTgtPort, 
-        TSDWord dataSize = KINECT_FRAME_SIZE,TString myName = "General UDP Socket")
+        TSDWord dataSize = KINECT_FRAME_SIZE,TString myName = "General UDP Socket",
+        TUDWord rcvBuffSize = 134217728, TUDWord trxBuffSize = 134217728)
         {
         	memset(locIP,0,MAX_NUM_CHARS);
         	memset(tgtIP,0,MAX_NUM_CHARS);
@@ -55,6 +66,8 @@ namespace NUdpSocket
             tgtPort = aTgtPort;
             strcpy(name,myName);  
             maxDataSize = dataSize;
+            rcvBufferSize = rcvBuffSize;
+            trxBufferSize = trxBuffSize;
         }
 
         SSocketConfig()
@@ -65,6 +78,8 @@ namespace NUdpSocket
         	tgtPort = 0;
         	memset(name,0,MAX_NUM_CHARS);
         	maxDataSize = 0;
+        	rcvBufferSize = 134217728;
+        	trxBuffSize = 134217728;
         }
 
     };
