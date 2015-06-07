@@ -38,7 +38,8 @@ namespace NUdpSocket
     {
     	BUFFER_65K  = 1024*65,
     	BUFFER_64M  = 1024*1024*64,
-    	BUFFER_128M = 1024*1024*128
+    	BUFFER_128M = 1024*1024*128,
+    	BUFFER_254M = 1024*1024*254
     };
 
     //structure that configures the 
@@ -56,7 +57,7 @@ namespace NUdpSocket
         //ctor
         SSocketConfig(TString myIP,TString secIP, TSDWord aLocPort, TSDWord aTgtPort, 
         TSDWord dataSize = KINECT_FRAME_SIZE,TString myName = "General UDP Socket",
-        TUDWord rcvBuffSize = 134217728, TUDWord trxBuffSize = 134217728)
+        TUDWord rcvBuffSize = BUFFER_128M, TUDWord trxBuffSize = BUFFER_128M)
         {
         	memset(locIP,0,MAX_NUM_CHARS);
         	memset(tgtIP,0,MAX_NUM_CHARS);
