@@ -33,14 +33,23 @@ namespace NUdpSocket
     static const TUDWord MAX_NUM_CHARS(255);
     static const TUDWord KINECT_FRAME_SIZE(640*480);
     
-    //this is an important enum
-    //enum that defines posible socket buffer sizes
+
+    /*enum that defines posible socket buffer sizes
+     * Sets or gets the maximum socket send buffer in bytes.  The  ker-
+        nel doubles this value (to allow space for bookkeeping overhead)
+        when it is set using setsockopt(), and  this  doubled  value  is
+        returned  by  getsockopt().   The  default  value  is set by the
+        wmem_default sysctl and the maximum allowed value is set by  the
+        wmem_max sysctl.  The minimum (doubled) value for this option is
+        2048.
+     */
     enum ESockBufferSizes
     {
-    	BUFFER_65K  = 1024*65,
-    	BUFFER_64M  = 1024*1024*64,
-    	BUFFER_128M = 1024*1024*128,
-    	BUFFER_254M = 1024*1024*254
+    	BUFFER_65K  = (1024*65)/2,
+    	BUFFER_512k = (1024*512)/2,
+    	BUFFER_64M  = (1024*1024*64)/2,
+    	BUFFER_128M = (1024*1024*128)/2,
+    	BUFFER_254M = (1024*1024*254)/2
     };
 
     //structure that configures the 
@@ -223,6 +232,10 @@ namespace NUdpSocket
         //member that represent if the socket was opened
         bool m_isOpen;
         
+        //members that represent rcv and transmit buffer sizes
+        TUDWord m_rxBuffSize;
+        TUDWord m_txBuffSize;
+
        
         //member that says if a fatal error accured 
         //int  m_lastErr;
