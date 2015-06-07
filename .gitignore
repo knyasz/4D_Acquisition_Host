@@ -3,6 +3,7 @@
 /.metadata
 /.settings
 *.bin
+*.o
 *.bin*
 test
 *~
