@@ -13,13 +13,18 @@ LIBS = `pkg-config --libs opencv`
 INCLUDE = -I/usr/include/libfreenect
 FREE_LIBS = -L/usr/lib -lfreenect
 CUFFT_LIB = -L/usr/local/cuda/lib64/ -lcufft
-OBJS = tinyxml.o udpShow.o udpSocket.o
+#OBJS = tinyxml.o udpShow.o udpSocket.o
+OBJS = tinyxml.o udpShow.o udpSocket.o tinyxmlparser.o tinyxmlerror.o tinystr.o 
+OBJSSOCK = tinyxml.o tinyxmlparser.o tinyxmlerror.o tinystr.o udpSocket.o
 
-udpShow: tinyxml.cpp tinyxmlparser.cpp tinyxmlerror.cpp tinystr.cpp udpSocket.cpp udpShow.cpp 
+#udpShow: tinyxml.cpp tinyxmlparser.cpp tinyxmlerror.cpp tinystr.cpp udpSocket.cpp udpShow.cpp 
+udpShow: $(OBJS) 
 	g++-4.9 $(CFLAGS) $? -o $@  $(LIBS) $(FREE_LIBS) $(CUFFT_LIB)
+	ld -r -o udpSocket64bit.o $(OBJSSOCK)
+	ar rvs udpSocket64bit.a udpSocket64bit.o
 
 %.o: %.cpp
 	g++-4.9 -c $(CFLAGS) $< -o $@ 
 	
 clean:
-	rm -rf *.o udpShow
+	rm -rf *.o udpShow *.a
