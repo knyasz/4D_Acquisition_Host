@@ -33,6 +33,7 @@ namespace NUdpSocket
     static const TUDWord MAX_NUM_CHARS(255);
     static const TUDWord KINECT_FRAME_SIZE(640*480);
     
+    //this is an important enum
     //enum that defines posible socket buffer sizes
     enum ESockBufferSizes
     {
@@ -80,7 +81,7 @@ namespace NUdpSocket
         	memset(name,0,MAX_NUM_CHARS);
         	maxDataSize = 0;
         	rcvBufferSize = 134217728;
-        	trxBuffSize = 134217728;
+        	trxBufferSize = 134217728;
         }
 
     };
