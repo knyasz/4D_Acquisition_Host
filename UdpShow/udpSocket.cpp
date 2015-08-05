@@ -101,7 +101,7 @@ bool CUdpSocket::openSocket()
         TUDWord sockTrxBuff(0);
         socklen_t len(sizeof(TUDWord));
         TUDWord sockRcvBuff(0);
-        /*
+
 
 
         (void)getsockopt(m_socket, SOL_SOCKET, SO_RCVBUF, &sockRcvBuff, &len);
@@ -127,7 +127,7 @@ bool CUdpSocket::openSocket()
          (void)getsockopt(m_socket, SOL_SOCKET, SO_SNDBUF, &sockTrxBuff, &len);
          printf("Succesfully changed socket options RcvBuff size is (%.3lf) and  TxBuffsize is (%.3lf) \n",
                  ((float)sockRcvBuff/(MEGA)), ((float)sockTrxBuff/(MEGA)));
-*/
+
     }
     else
     {
