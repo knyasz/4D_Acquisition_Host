@@ -21,7 +21,8 @@ using namespace NUdpSocket;
 //ctor
 CUdpSocket::CUdpSocket():
     m_portNum(-1), m_tgtPort(-1),m_socket(-1),
-    m_isConfigured(false), m_isOpen(false),m_maxDataSize(0)
+    m_isConfigured(false), m_isOpen(false),m_maxDataSize(0),
+	m_rxBuffSize(0),m_txBuffSize(0)
 {
     strcpy(m_name," ");
     memset(&m_localAdd,0,sizeof(m_localAdd));
@@ -72,6 +73,8 @@ bool CUdpSocket::configureSocket(const SSocketConfig &config)
         {
             strcpy(m_name,config.name);
             m_isConfigured = true;
+            m_rxBuffSize = config.rcvBufferSize;
+            m_txBuffSize = config.trxBufferSize;
         }
     }
     
@@ -87,12 +90,44 @@ bool CUdpSocket::configureSocket(const SSocketConfig &config)
 bool CUdpSocket::openSocket()
 {
     bool rv(false);
+    static const float MEGA(1024.*1024.);
     
     if ((m_isConfigured) && (!m_isOpen) && 
             (!bind(m_socket,(struct sockaddr*)&m_localAdd,sizeof(m_localAdd))))
     {
         m_isOpen = true;
         rv = true;
+
+        TUDWord sockTrxBuff(0);
+        socklen_t len(sizeof(TUDWord));
+        TUDWord sockRcvBuff(0);
+
+
+
+        (void)getsockopt(m_socket, SOL_SOCKET, SO_RCVBUF, &sockRcvBuff, &len);
+        (void)getsockopt(m_socket, SOL_SOCKET, SO_SNDBUF, &sockTrxBuff, &len);
+        printf("Succesfully changed socket options RcvBuff size is (%.3lf) and  TxBuffsize is (%.3lf) \n",
+             ((float)sockRcvBuff/(MEGA)), ((float)sockTrxBuff/(MEGA)));
+
+        socklen_t optLen(sizeof(TUDWord));
+        TSDWord res(setsockopt(m_socket, SOL_SOCKET, SO_SNDBUF,&m_txBuffSize,optLen));
+        if (res != 0)
+        {
+          (void)handelError(res);
+          rv = false;
+         }
+
+         res = setsockopt(m_socket, SOL_SOCKET, SO_RCVBUF,&m_rxBuffSize,optLen);
+         if (res != 0)
+         {
+           (void)handelError(res);
+            rv = false;
+         }
+         (void)getsockopt(m_socket, SOL_SOCKET, SO_RCVBUF, &sockRcvBuff, &len);
+         (void)getsockopt(m_socket, SOL_SOCKET, SO_SNDBUF, &sockTrxBuff, &len);
+         printf("Succesfully changed socket options RcvBuff size is (%.3lf) and  TxBuffsize is (%.3lf) \n",
+                 ((float)sockRcvBuff/(MEGA)), ((float)sockTrxBuff/(MEGA)));
+
     }
     else
     {

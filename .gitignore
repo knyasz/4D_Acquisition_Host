@@ -3,8 +3,14 @@
 /.metadata
 /.settings
 *.bin
+*.o
 *.bin*
 test
 *~
 udpShow
 *.jpg
+
+=======
+RemoteSystemsTempFiles
+rcvdGray.jpg
+

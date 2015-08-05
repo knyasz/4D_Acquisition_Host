@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
 	//namedWindow(jpgLoad,CV_WINDOW_AUTOSIZE);
 
 	SSocketConfig conf("10.0.0.1","10.0.0.2",50555,50555,
-			KINECT_FRAME_SIZE,"IR IMAGE SOCKET");
+			KINECT_FRAME_SIZE,"IR IMAGE SOCKET", BUFFER_128M, BUFFER_512k);
 	CUdpSocket udpSocket;
 	bool result = true;
 	result = udpSocket.configureSocket(conf);
