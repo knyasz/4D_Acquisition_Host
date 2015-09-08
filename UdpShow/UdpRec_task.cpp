@@ -186,7 +186,7 @@ void CUdpRecTask::mainFunc()
 		//GET HEADER
 		if (m_socket.reciveData(reinterpret_cast<TUByte*>(&data),sz,TIME_OUT))
 		{	
-			NUdpSocket::TUDWord ind = toIndex(data->opCode);
+			NUdpSocket::TUDWord ind = toIndex(translateOpCode(static_cast<EOpCodesSend>(data->opCode)));
 
 			if (((ind >= 0) && (ind < OP_REC_COUNT)) && (m_funArr[ind](data)))
 			{
@@ -210,4 +210,33 @@ void CUdpRecTask::mainFunc()
 	}
 }
 
-
+///////////////////////////////////////////////////////////////////////////////
+// Function Name: translateOpCode
+// Description:   translates snd opcodes to rec opcode
+// Output:        None
+// In:            None 
+// Return:        the competable rec opcode 
+///////////////////////////////////////////////////////////////////////////////
+NUdpMessages::EOpCodesRec CUdpRecTask::translateOpCode(const NUdpMessages::EOpCodesSend& opSnd)
+{
+    NUdpMessages::EOpCodesRec rv(OP_REC_COUNT);
+    
+    switch (opSnd)
+    {
+        case OP_ACK_SND:
+            rv = OP_ACK_REC;
+            break;
+        case OP_START_SND:
+            rv = OP_START_REC;
+            break;
+        case OP_FRAME_DEP_SND:
+        case OP_FRAME_RGB_SND:
+            rv = OP_FRAME_REC;
+            break;
+        case OP_SND_COUNT:
+        default:
+            printf("Couldnt translate the opcode %d \n", static_cast<TUDWord>(opSnd));
+    }
+    
+    return rv;
+}

@@ -186,6 +186,15 @@ private:
 		m_funArr[toIndex(NUdpMessages::OP_FRAME_REC)] = 
 			[this](NUdpMessages::SHeader* buff) -> bool { return this->recFrame(buff); };
 	}
+        
+        ///////////////////////////////////////////////////////////////////////////////
+	// Function Name: translateOpCode
+	// Description:   translates snd opcodes to rec opcode
+	// Output:        None
+	// In:            None 
+	// Return:        the competable rec opcode 
+	///////////////////////////////////////////////////////////////////////////////
+        NUdpMessages::EOpCodesRec translateOpCode(const NUdpMessages::EOpCodesSend& opSnd);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Function Name: toIndex
