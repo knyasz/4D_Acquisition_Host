@@ -20,7 +20,7 @@ static const unsigned int TIME_OUT = 2500;
 bool CUdpRecTask::initAndRun(SSocketConfig& config)
 {
 	bool rv(false);
-
+        
 	if (m_socket.configureSocket(config))
 	{
 		if (m_socket.openSocket())
@@ -108,7 +108,7 @@ bool CUdpRecTask::recFrame(NUdpMessages::SHeader* buff)
 	TUByte* frameBuffer = reinterpret_cast<SFrameRGB*>(buff)->byteVector;
 
 	//keep recieving frame blocks untill the whole frame is field with data
-	while ((buff->size < m_bytesWritten) && (rv))
+	while ((m_bytesWritten < buff->size) && (rv))
 	{
 		frameBuffer += m_bytesWritten;
 		sz = buff->size;
@@ -195,6 +195,7 @@ void CUdpRecTask::mainFunc()
 
 			if (((ind >= 0) && (ind < OP_REC_COUNT)) && (m_funArr[ind](data)))
 			{
+                            
 				if (m_bytesWritten >= data->size)
 				{
 					m_bytesWritten = 0;

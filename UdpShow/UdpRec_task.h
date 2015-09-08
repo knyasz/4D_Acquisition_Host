@@ -21,7 +21,7 @@ public:
 	///////////////////////////////////////////////////////////////////////////////
 	// ctor
 	///////////////////////////////////////////////////////////////////////////////
-	CUdpRecTask() : m_newFrame(true) 
+	CUdpRecTask() : m_newFrame(true), m_bytesWritten(0)
 	{
 		bindFunctors();
 	}
@@ -182,7 +182,9 @@ private:
 	void bindFunctors()
 	{
 		m_funArr[toIndex(NUdpMessages::OP_ACK_REC)]  = 
-			[this](NUdpMessages::SHeader* buff) -> bool{ return this->recAck(buff); };
+			[this](NUdpMessages::SHeader* buff) -> bool { return this->recAck(buff); };
+                m_funArr[toIndex(NUdpMessages::OP_START_REC)] = 
+                        [this](NUdpMessages::SHeader* buff) -> bool { return this->recStart(buff); };
 		m_funArr[toIndex(NUdpMessages::OP_FRAME_REC)] = 
 			[this](NUdpMessages::SHeader* buff) -> bool { return this->recFrame(buff); };
 	}
