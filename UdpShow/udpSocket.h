@@ -27,11 +27,15 @@ namespace NUdpSocket
     typedef unsigned int TUDWord;
     typedef int TSDWord;
     typedef char* TString;
+    typedef float TReal32;
+    typedef double TReal64;
     
     //constant 
     static const TUDWord WAIT_FOREVER(-1);
     static const TUDWord MAX_NUM_CHARS(255);
     static const TUDWord KINECT_FRAME_SIZE(640*480);
+    static const TUDWord KINECT_FRAME_DEPTH_SIZE(640 * 480 * 2);
+    static const TUDWord KINECT_FRAME_RGB_SIZE(640 * 480 * 3);
     
 
     /*enum that defines posible socket buffer sizes
