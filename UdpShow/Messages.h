@@ -31,7 +31,7 @@ namespace NUdpMessages
 	struct SHeader
 	{
 		NUdpSocket::TUWord sync;
-		NUdpSocket::TUWord size;
+		NUdpSocket::TUDWord size;
 		NUdpSocket::TUDWord opCode;
 		NUdpSocket::TUDWord checksum;
 

@@ -184,8 +184,13 @@ void CUdpRecTask::mainFunc()
 		sz = sizeof(SHeader);
 
 		//GET HEADER
-		if (m_socket.reciveData(reinterpret_cast<TUByte*>(&data),sz,TIME_OUT))
+		if (m_socket.reciveData(reinterpret_cast<TUByte*>(data),sz,TIME_OUT))
 		{	
+                        if (data->sync != 0xA5A5)
+                        {
+                            printf("Sync wasnt found in the recived message \n");
+                            continue;
+                        }
 			NUdpSocket::TUDWord ind = toIndex(translateOpCode(static_cast<EOpCodesSend>(data->opCode)));
 
 			if (((ind >= 0) && (ind < OP_REC_COUNT)) && (m_funArr[ind](data)))
