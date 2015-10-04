@@ -110,12 +110,13 @@ bool CUdpRecTask::recFrame(NUdpMessages::SHeader* buff)
 	//keep recieving frame blocks untill the whole frame is field with data
 	while ((m_bytesWritten < buff->size) && (rv))
 	{
-		frameBuffer += m_bytesWritten;
+		//frameBuffer += m_bytesWritten;
 		sz = buff->size;
 
 		if (m_socket.reciveData(reinterpret_cast<TUByte*>(frameBuffer), sz, TIME_OUT))
 		{
 			m_bytesWritten += sz;
+                        frameBuffer += sz;
 		}
 		else
 		{

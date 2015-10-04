@@ -41,7 +41,7 @@ void shower()
     {
         //cs
         {
-            std::lock_guard<std::mutex> guard(g_mutex);
+            //std::lock_guard<std::mutex> guard(g_mutex);
             if (g_newFrame)
             {
                 g_recTask.releaseCell(oldKey);
@@ -49,15 +49,11 @@ void shower()
                 depthf.data = g_depth->byteVector;
                 g_newFrame = false;
             }
-            else
-            {
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            }
         }
 
         cv::imshow(winName,depthf);
 
-        cv::waitKey(5);
+        cv::waitKey(1);
     }
     
 }
@@ -99,10 +95,17 @@ int main(int argc, char **argv) {
             if (g_recTask.getRecivedFrameKey(frameKey) == ESafeQueRetTypes::SUCCESS)
             {
                //depthf.data = (r(ecTask.getCellByKey(frameKey))->byteVector;
-                std::lock_guard<std::mutex> guard(g_mutex);
+                //std::lock_guard<std::mutex> guard(g_mutex);
                 g_depth = reinterpret_cast<NUdpMessages::SFrameDep*>(g_recTask.getCellByKey(frameKey));
                 g_newFrame = true;
                 g_key = frameKey;
+                
+                /*depthf.data = (reinterpret_cast<NUdpMessages::SFrameDep*>(g_recTask.getCellByKey(frameKey)))->byteVector;
+                cv::imshow(winName,depthf);
+
+                cv::waitKey(1);
+                g_recTask.releaseCell(frameKey);*/
+                
             }
 			
 	}
