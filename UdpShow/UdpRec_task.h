@@ -35,6 +35,16 @@ public:
 	// Return:        true on ok started / false on problem detected 
 	///////////////////////////////////////////////////////////////////////////////
 	bool initAndRun(NUdpSocket::SSocketConfig& config);
+        
+        ///////////////////////////////////////////////////////////////////////////////
+	// Function Name: initAndRun
+	// Description:   init the listener and start it
+	// Output:        None
+	// In:            otherSocket - just give me the other socket
+	//				  
+	// Return:        true on ok started / false on problem detected 
+	///////////////////////////////////////////////////////////////////////////////
+	bool initAndRun(NUdpSocket::CUdpSocket* otherSocket);
 
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -116,6 +126,18 @@ public:
 		return m_start.timeStamp;
 	}
         
+        ///////////////////////////////////////////////////////////////////////////////
+	// Function Name: getSocket
+	// Description:   get ptr to this class socket
+	// Output:        None
+	// In:            none
+	// Return:        this class socket
+	///////////////////////////////////////////////////////////////////////////////
+	NUdpSocket::CUdpSocket* getSocket()
+	{
+            return m_socket.get();
+	}
+        
         
 
 private:
@@ -168,7 +190,7 @@ private:
           std::unique_ptr<NUdpSocket::TUByte[]> flushBuff(new NUdpSocket::TUByte[flushSize]);
           NUdpSocket::TUDWord count(0);
           while(
-           m_socket.reciveData(reinterpret_cast<NUdpSocket::TUByte*>(flushBuff.get()),
+           m_socket->reciveData(reinterpret_cast<NUdpSocket::TUByte*>(flushBuff.get()),
                   flushSize,10000) && count < 300){ count++; } 
         }
 
@@ -216,7 +238,7 @@ private:
 	std::unique_ptr<std::thread> m_thread;
 
 	//the socket to use
-	NUdpSocket::CUdpSocket m_socket;
+	std::shared_ptr<NUdpSocket::CUdpSocket> m_socket;
 
 	//the thread que
 	NSafeContainer::CSafeQue<NUdpMessages::EOpCodesRec> m_queue;

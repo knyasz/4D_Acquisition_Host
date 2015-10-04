@@ -21,9 +21,11 @@ bool CUdpTransTask::initAndRun(SSocketConfig& config)
 {
 	bool rv(false);
 
-	if (m_socket.configureSocket(config))
+        m_socket.reset(new NUdpSocket::CUdpSocket);
+        
+	if (m_socket->configureSocket(config))
 	{
-		if (m_socket.openSocket())
+		if (m_socket->openSocket())
 		{
 			rv = true;
 			m_thread.reset(new std::thread([this](){this->mainFunc();}));
@@ -31,6 +33,24 @@ bool CUdpTransTask::initAndRun(SSocketConfig& config)
 	}
 
 	return rv;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Function Name: initAndRun
+// Description:   init the listener and start it
+// Output:        None
+// In:            otherSocket - just give me the other socket
+//				  
+// Return:        true on ok started / false on problem detected 
+///////////////////////////////////////////////////////////////////////////////
+bool CUdpTransTask::initAndRun(NUdpSocket::CUdpSocket* otherSocket)
+{
+    bool rv(true);
+    
+    m_socket.reset(otherSocket);
+    m_thread.reset(new std::thread([this](){this->mainFunc();}));
+    
+    return rv;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -84,7 +104,7 @@ bool CUdpTransTask::sendFrameRGB()
 		if (frameRGB != nullptr)
 		{
 			//transmit the header
-			if (m_socket.sendData(reinterpret_cast<TUByte*>(frameRGB), sizeof(SHeader)))
+			if (m_socket->sendData(reinterpret_cast<TUByte*>(frameRGB), sizeof(SHeader)))
 			{
 				rv = sendFrame(frameRGB->byteVector, frameRGB->size);
 			}
@@ -119,7 +139,7 @@ bool CUdpTransTask::sendFrameDEP()
 		if (frameDEP != nullptr)
 		{
 			//transmit the header
-			if (m_socket.sendData(reinterpret_cast<TUByte*>(frameDEP), sizeof(SHeader)))
+			if (m_socket->sendData(reinterpret_cast<TUByte*>(frameDEP), sizeof(SHeader)))
 			{
 				rv = sendFrame(frameDEP->byteVector, frameDEP->size);
 			}
@@ -153,7 +173,7 @@ bool CUdpTransTask::sendFrame(NUdpSocket::TUByte* vector, NUdpSocket::TUDWord si
 			chunkSize = size - byetsWritten;
 		}
 
-		rv = m_socket.sendData(vector, chunkSize);
+		rv = m_socket->sendData(vector, chunkSize);
 		byetsWritten += chunkSize;
 		vector += chunkSize;
 	}
@@ -184,7 +204,7 @@ bool CUdpTransTask::sendAck()
 	ack.size = sz;
 
 
-	rv = m_socket.sendData(buff, sz);
+	rv = m_socket->sendData(buff, sz);
 
 	return rv;
 }
@@ -209,7 +229,7 @@ bool CUdpTransTask::sendStart()
 	TUByte* buff(asBuffer(str, sz));
 	str.size = sz;
 
-	rv = m_socket.sendData(buff, sz);
+	rv = m_socket->sendData(buff, sz);
 
 	return rv;
 }

@@ -21,9 +21,11 @@ bool CUdpRecTask::initAndRun(SSocketConfig& config)
 {
 	bool rv(false);
         
-	if (m_socket.configureSocket(config))
+        m_socket.reset(new NUdpSocket::CUdpSocket);
+        
+	if (m_socket->configureSocket(config))
 	{
-		if (m_socket.openSocket())
+		if (m_socket->openSocket())
 		{
                     cleanSocket();
                     rv = true;
@@ -32,6 +34,25 @@ bool CUdpRecTask::initAndRun(SSocketConfig& config)
 	}
 
 	return rv;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Function Name: initAndRun
+// Description:   init the listener and start it
+// Output:        None
+// In:            otherSocket - just give me the other socket
+//				  
+// Return:        true on ok started / false on problem detected 
+///////////////////////////////////////////////////////////////////////////////
+bool CUdpRecTask::initAndRun(NUdpSocket::CUdpSocket* otherSocket)
+{
+    bool rv(true);
+    
+    m_socket.reset(otherSocket);
+    m_thread.reset(new std::thread([this](){this->mainFunc();}));
+    
+    return rv;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -49,7 +70,7 @@ bool CUdpRecTask::recAck(NUdpMessages::SHeader* buff)
 	TUDWord sz(sizeof(SAck) - sizeof(SHeader));
 	buff += sizeof(SHeader); //move buffer
 
-	if (m_socket.reciveData(reinterpret_cast<TUByte*>(buff), sz, TIME_OUT))
+	if (m_socket->reciveData(reinterpret_cast<TUByte*>(buff), sz, TIME_OUT))
 	{
 		buff -= sizeof(SHeader); //move back to the begining of the buffer
 		SAck* ack = reinterpret_cast<SAck*>(buff);
@@ -113,7 +134,7 @@ bool CUdpRecTask::recFrame(NUdpMessages::SHeader* buff)
 		//frameBuffer += m_bytesWritten;
 		sz = buff->size;
 
-		if (m_socket.reciveData(reinterpret_cast<TUByte*>(frameBuffer), sz, TIME_OUT))
+		if (m_socket->reciveData(reinterpret_cast<TUByte*>(frameBuffer), sz, TIME_OUT))
 		{
 			m_bytesWritten += sz;
                         frameBuffer += sz;
@@ -144,7 +165,7 @@ bool CUdpRecTask::recStart(NUdpMessages::SHeader* buff)
 	TUDWord sz(sizeof(SStart) - sizeof(SHeader));
 	buff += sizeof(SHeader); //move buffer
 
-	if (m_socket.reciveData(reinterpret_cast<TUByte*>(buff), sz, TIME_OUT))
+	if (m_socket->reciveData(reinterpret_cast<TUByte*>(buff), sz, TIME_OUT))
 	{
 		buff -= sizeof(SHeader); //move back to the begining of the buffer
 		SStart* start = reinterpret_cast<SStart*>(buff);
@@ -185,7 +206,7 @@ void CUdpRecTask::mainFunc()
 		sz = sizeof(SHeader);
 
 		//GET HEADER
-		if (m_socket.reciveData(reinterpret_cast<TUByte*>(data),sz,TIME_OUT))
+		if (m_socket->reciveData(reinterpret_cast<TUByte*>(data),sz,TIME_OUT))
 		{	
                         if (data->sync != 0xA5A5)
                         {

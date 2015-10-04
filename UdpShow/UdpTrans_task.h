@@ -35,6 +35,16 @@ public:
 	// Return:        true on ok started / false on problem detected 
 	///////////////////////////////////////////////////////////////////////////////
 	bool initAndRun(NUdpSocket::SSocketConfig& config);
+        
+        ///////////////////////////////////////////////////////////////////////////////
+	// Function Name: initAndRun
+	// Description:   init the listener and start it
+	// Output:        None
+	// In:            otherSocket - just give me the other socket
+	//				  
+	// Return:        true on ok started / false on problem detected 
+	///////////////////////////////////////////////////////////////////////////////
+	bool initAndRun(NUdpSocket::CUdpSocket* otherSocket);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Function Name: initAndRun
@@ -93,11 +103,23 @@ public:
 	{
 		return m_safeCar.giveCell(Key);
 	}
-
+        
+        ///////////////////////////////////////////////////////////////////////////////
+	// Function Name: getSocket
+	// Description:   get ptr to this class socket
+	// Output:        None
+	// In:            none
+	// Return:        this class socket
+	///////////////////////////////////////////////////////////////////////////////
+	NUdpSocket::CUdpSocket* getSocket()
+	{
+            return m_socket.get();
+	}
+        
 private:
 	///////////////////////////////////////////////////////////////////////////////
 	// Function Name: mainFunc
-	// Description:   runs untill alive and performs the threds duties
+	// Description:   runs untill alive and performs the threds duties&
 	// Output:        None
 	// In:            none
 	// Return:        none 
@@ -201,7 +223,7 @@ private:
 	std::unique_ptr<std::thread> m_thread;
 
 	//the socket to use
-	NUdpSocket::CUdpSocket m_socket;
+	std::shared_ptr<NUdpSocket::CUdpSocket> m_socket;
 
 	//the thread que
 	NSafeContainer::CSafeQue<NUdpMessages::EOpCodesSend> m_queue;

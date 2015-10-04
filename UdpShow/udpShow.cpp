@@ -23,16 +23,66 @@ const TUDWord to(100000);
 std::mutex g_mutex;
 NUdpMessages::SFrameDep* g_depth;
 NUdpMessages::SFrameRGB* g_rgb;
-bool g_newFrame(false);
-TUDWord g_key;
+bool g_newFrameDEP(false);
+bool g_newFrameRGB(false);
+TUDWord g_keyDEP;
+TUDWord g_keyRGB;
+
 
 //make reciver task 
 CUdpRecTask g_recTask;
 
-void shower()
+//make sendrTask
+CUdpTransTask g_transTask;
+
+void showerDep()
 {
     Mat depthf(Size(640,480),CV_8UC1);
-    std::string winName("depth");
+    Mat rgbf(Size(640,480),CV_8UC3);
+    std::string winNameDep("depth");
+    std::string winNameRgb("rgb");
+    namedWindow(winNameDep,CV_WINDOW_AUTOSIZE);
+    namedWindow(winNameRgb,CV_WINDOW_AUTOSIZE);
+    
+    TUDWord oldKeyDep(70);
+    TUDWord oldKeyRgb(70);
+    
+    while(1)
+    {
+        //cs
+        {
+            //std::lock_guard<std::mutex> guard(g_mutex);
+            if (g_newFrameDEP)
+            {
+                g_recTask.releaseCell(oldKeyDep);
+                oldKeyDep = g_keyDEP;
+                depthf.data = g_depth->byteVector;
+                g_newFrameDEP = false;
+            }
+            
+            if (g_newFrameRGB)
+            {
+                g_recTask.releaseCell(oldKeyRgb);
+                oldKeyRgb = g_keyRGB;
+                rgbf.data = g_rgb->byteVector;
+                g_newFrameRGB = false;
+            }
+               
+        }
+
+        cv::imshow(winNameDep,depthf);
+        cv::imshow(winNameRgb,rgbf);
+
+        cv::waitKey(1);
+    }
+    
+}
+
+
+/*void showerRGB()
+{
+    Mat rgbf(Size(640,480),CV_8UC3);
+    std::string winName("RGB");
     namedWindow(winName,CV_WINDOW_AUTOSIZE);
     
     TUDWord oldKey(70);
@@ -42,21 +92,22 @@ void shower()
         //cs
         {
             //std::lock_guard<std::mutex> guard(g_mutex);
-            if (g_newFrame)
+            if (g_newFrameRGB)
             {
                 g_recTask.releaseCell(oldKey);
-                oldKey = g_key;
-                depthf.data = g_depth->byteVector;
-                g_newFrame = false;
+                oldKey = g_keyRGB;
+                rgbf.data = g_rgb->byteVector;
+                g_newFrameRGB = false;
             }
         }
 
-        cv::imshow(winName,depthf);
+        cv::imshow(winName,rgbf);
 
         cv::waitKey(1);
     }
-    
-}
+}*/
+
+
 
 
 int main(int argc, char **argv) {
@@ -78,6 +129,7 @@ int main(int argc, char **argv) {
 	
         
         bool result(g_recTask.initAndRun(conf));
+        result = result &&  g_transTask.initAndRun(g_recTask.getSocket());
         
         if (!result)
         {
@@ -86,7 +138,7 @@ int main(int argc, char **argv) {
 	
 	
 	
-        std::thread showerThread(shower);
+        std::thread showerThread(showerDep);
         
 	while (!die) 
         {
@@ -96,10 +148,20 @@ int main(int argc, char **argv) {
             {
                //depthf.data = (r(ecTask.getCellByKey(frameKey))->byteVector;
                 //std::lock_guard<std::mutex> guard(g_mutex);
-                g_depth = reinterpret_cast<NUdpMessages::SFrameDep*>(g_recTask.getCellByKey(frameKey));
-                g_newFrame = true;
-                g_key = frameKey;
-                
+                g_rgb = g_recTask.getCellByKey(frameKey);
+               
+                if (g_rgb->size == KINECT_FRAME_SIZE)
+                {
+                    g_depth = reinterpret_cast<NUdpMessages::SFrameDep*>(g_rgb);
+                    g_newFrameDEP = true;
+                    g_keyDEP = frameKey;
+                }
+                else if (g_depth->size == KINECT_FRAME_RGB_SIZE)
+                {
+                    g_newFrameRGB = true;
+                    g_keyRGB = frameKey;
+                }
+                  
                 /*depthf.data = (reinterpret_cast<NUdpMessages::SFrameDep*>(g_recTask.getCellByKey(frameKey)))->byteVector;
                 cv::imshow(winName,depthf);
 
