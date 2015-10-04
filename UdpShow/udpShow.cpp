@@ -107,6 +107,38 @@ void showerDep()
     }
 }*/
 
+bool sendStartAndWaitForAck(CUdpRecTask* recTask, CUdpTransTask* tranTask)
+{
+    bool rv(false);
+    
+    //send start message to all the jetsons and wait for a response if not try for 3 times then die
+     if (tranTask->sendMsg(NUdpMessages::OP_START_SND) == ESafeQueRetTypes::SUCCESS)
+     {
+            
+        TUDWord failCounter(0);
+        TReal64 tt(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()));
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(500)); //give time to replay
+
+        while ((failCounter < 3) && (!rv))
+        {
+           if (recTask->getLastAckTT() >=  tt)
+           {
+               rv = true;
+           }
+           else
+           {
+               failCounter++;
+               tranTask->sendMsg(NUdpMessages::OP_START_SND);
+               tt = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+               std::this_thread::sleep_for(std::chrono::milliseconds(500));
+           }
+        }            
+      }
+      
+    
+    return rv;
+}
 
 
 
@@ -137,6 +169,8 @@ int main(int argc, char **argv) {
         }
 	
 	
+        //send start to all the jetsons (not active now))
+        //sendStartAndWaitForAck(&g_recTask,&g_transTask);
 	
         std::thread showerThread(showerDep);
         
