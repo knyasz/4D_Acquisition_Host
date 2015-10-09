@@ -170,7 +170,7 @@ int main(int argc, char **argv) {
 	
 	
         //send start to all the jetsons (not active now))
-        //sendStartAndWaitForAck(&g_recTask,&g_transTask);
+        sendStartAndWaitForAck(&g_recTask,&g_transTask);
 	
         std::thread showerThread(showerDep);
         

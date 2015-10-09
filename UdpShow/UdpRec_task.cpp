@@ -101,7 +101,8 @@ bool CUdpRecTask::recAck(NUdpMessages::SHeader* buff)
 
 	frameBuffer += m_bytesWritten;
 
-	if (m_socket.reciveData(reinterpret_cast<TUByte*>(frameBuffer), sz, TIME_OUT))
+	if (m_socket.reciveData(reinterpret_cas
+                            t<TUByte*>(frameBuffer), sz, TIME_OUT))
 	{
 		m_bytesWritten += sz;
 	}
@@ -169,6 +170,7 @@ bool CUdpRecTask::recStart(NUdpMessages::SHeader* buff)
 	{
 		buff -= sizeof(SHeader); //move back to the begining of the buffer
 		SStart* start = reinterpret_cast<SStart*>(buff);
+                            
 		m_start = *start;
 	}
 	else
@@ -177,6 +179,7 @@ bool CUdpRecTask::recStart(NUdpMessages::SHeader* buff)
 	}
 
 	return rv;
+                            
 }
 
 ///////////////////////////////////////////////////////////////////////////////
