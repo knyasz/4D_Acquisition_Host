@@ -8,7 +8,7 @@
 
 all: udpShow
 
-CFLAGS= -std=c++11 -fPIC -g -Wall `pkg-config --cflags opencv`
+CFLAGS= -std=c++11  -fPIC -g -Wall `pkg-config --cflags opencv`
 LIBS = `pkg-config --libs opencv`
 INCLUDE = -I/usr/include/libfreenect
 FREE_LIBS = -L/usr/lib -lfreenect
@@ -22,6 +22,7 @@ udpShow: $(OBJS)
 	g++-4.9 $(CFLAGS) $? -o $@  $(LIBS) $(FREE_LIBS) $(CUFFT_LIB)
 	ld -r -o udpSocket64bit.o $(OBJSSOCK)
 	ar rvs udpSocket64bit.a udpSocket64bit.o
+	
 
 %.o: %.cpp
 	g++-4.9 -c $(CFLAGS) $< -o $@ 

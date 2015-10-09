@@ -212,7 +212,7 @@ private:
 	// Return:        number Ind 
 	///////////////////////////////////////////////////////////////////////////////
 	template <typename TBufferType>
-	NUdpSocket::TUByte* asBuffer(TBufferType& buff, NUdpSocket::TUDWord sz)
+	NUdpSocket::TUByte* asBuffer(TBufferType& buff, NUdpSocket::TUDWord& sz)
 	{
 		sz = sizeof(buff);
 		return reinterpret_cast<NUdpSocket::TUByte*>(&buff);

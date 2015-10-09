@@ -65,16 +65,18 @@ bool CUdpRecTask::initAndRun(NUdpSocket::CUdpSocket* otherSocket)
 bool CUdpRecTask::recAck(NUdpMessages::SHeader* buff)
 {
 	bool rv(true);
-	std::lock_guard<std::mutex> guard(m_mutex);
-	
+	SAck ack;
+        
+        std::lock_guard<std::mutex> guard(m_mutex);
+        
 	TUDWord sz(sizeof(SAck) - sizeof(SHeader));
-	buff += sizeof(SHeader); //move buffer
+	//buff += sizeof(SHeader); //move buffer
 
-	if (m_socket->reciveData(reinterpret_cast<TUByte*>(buff), sz, TIME_OUT))
+	if (m_socket->reciveData(reinterpret_cast<TUByte*>(&(ack.timeStamp)), sz, TIME_OUT))
 	{
-		buff -= sizeof(SHeader); //move back to the begining of the buffer
-		SAck* ack = reinterpret_cast<SAck*>(buff);
-		m_ack = *ack;
+		//buff -= sizeof(SHeader); //move back to the begining of the buffer
+		//SAck* ack = reinterpret_cast<SAck*>(buff);
+		m_ack.timeStamp = ack.timeStamp;
 	}
 	else
 	{
@@ -207,7 +209,15 @@ void CUdpRecTask::mainFunc()
 		}
 
 		sz = sizeof(SHeader);
-
+                
+                
+                //SAck ack;
+                //TUDWord sz2 = sizeof(ack);
+                //m_socket->reciveData(reinterpret_cast<TUByte*>(&ack),sz,TIME_OUT);
+                
+                //sz2=8;
+                //m_socket->reciveData(reinterpret_cast<TUByte*>(&(ack.timeStamp)),sz2,TIME_OUT);
+                
 		//GET HEADER
 		if (m_socket->reciveData(reinterpret_cast<TUByte*>(data),sz,TIME_OUT))
 		{	

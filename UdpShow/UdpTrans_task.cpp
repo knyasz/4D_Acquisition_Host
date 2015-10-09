@@ -99,7 +99,7 @@ bool CUdpTransTask::sendFrameRGB()
 		SFrameRGB* frameRGB = m_safeCar.getCellByKey(key);
 		frameRGB->opCode = OP_FRAME_RGB_SND;
 		frameRGB->size = NUdpSocket::KINECT_FRAME_RGB_SIZE;
-		frameRGB->timeStamp = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+		frameRGB->timeStamp = timeNow();
 
 		if (frameRGB != nullptr)
 		{
@@ -133,8 +133,8 @@ bool CUdpTransTask::sendFrameDEP()
 	{
 		SFrameDep* frameDEP = reinterpret_cast<SFrameDep*>(m_safeCar.getCellByKey(key));
 		frameDEP->opCode = OP_FRAME_DEP_SND;
-		frameDEP->size = KINECT_FRAME_SIZE;
-		frameDEP->timeStamp = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+		frameDEP->size = KINECT_FRAME_GRAY_SIZE;
+		frameDEP->timeStamp = timeNow();
 
 		if (frameDEP != nullptr)
 		{
@@ -198,7 +198,7 @@ bool CUdpTransTask::sendAck()
 
 	ack.opCode = OP_ACK_SND;
 	ack.size = sizeof(SAck) - sizeof(SHeader);
-	ack.timeStamp = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+	ack.timeStamp = timeNow();
 	
 	TUByte* buff(asBuffer(ack, sz));
 	ack.size = sz;
@@ -224,7 +224,7 @@ bool CUdpTransTask::sendStart()
 
 	str.opCode = OP_START_SND;
 	str.size = sizeof(SStart) - sizeof(SHeader);
-	str.timeStamp = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+	str.timeStamp = timeNow();
 
 	TUByte* buff(asBuffer(str, sz));
 	str.size = sz;

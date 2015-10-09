@@ -116,7 +116,7 @@ bool sendStartAndWaitForAck(CUdpRecTask* recTask, CUdpTransTask* tranTask)
      {
             
         TUDWord failCounter(0);
-        TReal64 tt(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()));
+        TReal64 tt(timeNow());
         
         std::this_thread::sleep_for(std::chrono::milliseconds(500)); //give time to replay
 
@@ -157,8 +157,9 @@ int main(int argc, char **argv) {
 	//cv::imshow(winName,depthf);
 
         SSocketConfig conf("10.0.0.1","10.0.0.2",50555,50555,
-			KINECT_FRAME_SIZE,"IR IMAGE SOCKET", BUFFER_128M, BUFFER_512k);
+			KINECT_FRAME_GRAY_SIZE,"IR IMAGE SOCKET", BUFFER_128M, BUFFER_512k);
 	
+
         
         bool result(g_recTask.initAndRun(conf));
         result = result &&  g_transTask.initAndRun(g_recTask.getSocket());
@@ -170,7 +171,10 @@ int main(int argc, char **argv) {
 	
 	
         //send start to all the jetsons (not active now))
-        sendStartAndWaitForAck(&g_recTask,&g_transTask);
+        if (!sendStartAndWaitForAck(&g_recTask,&g_transTask))
+        {
+            return -1;
+        }
 	
         std::thread showerThread(showerDep);
         
@@ -184,7 +188,7 @@ int main(int argc, char **argv) {
                 //std::lock_guard<std::mutex> guard(g_mutex);
                 g_rgb = g_recTask.getCellByKey(frameKey);
                
-                if (g_rgb->size == KINECT_FRAME_SIZE)
+                if (g_rgb->size == KINECT_FRAME_GRAY_SIZE)
                 {
                     g_depth = reinterpret_cast<NUdpMessages::SFrameDep*>(g_rgb);
                     g_newFrameDEP = true;

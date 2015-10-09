@@ -13,7 +13,7 @@
 #include "udpSocket.h"
 
 //tiny xml include
-#include <tinyxml.h>
+#include "tinyxml.h"
 
 //using section
 using namespace NUdpSocket;
@@ -192,7 +192,7 @@ bool CUdpSocket::sendData(TUByte* buffer, TUDWord size)
 //desc  : recives data sequence
 //arg   : buffer - buffer to fill
 //      : size: recived data size (the buffer size that is given)
-//        to - timeout in mili seconds
+//        to - timeout in micro seconds
 //return: true if recived ok false if not 
 ///////////////////////////////////////
 bool CUdpSocket::reciveData( TUByte*  buffer, TUDWord& size,TSDWord to)
@@ -201,6 +201,9 @@ bool CUdpSocket::reciveData( TUByte*  buffer, TUDWord& size,TSDWord to)
     struct sockaddr_in currCli;
     static TUDWord clientLen(sizeof(currCli));
     TSDWord status(1);
+    TUDWord sz(size);
+
+    size = 0;
   
     //memset(buffer,0,size);
     
@@ -215,7 +218,7 @@ bool CUdpSocket::reciveData( TUByte*  buffer, TUDWord& size,TSDWord to)
     
     if (status > 0)
     {
-        status = handelError(recvfrom(m_socket,buffer,size,0,
+        status = handelError(recvfrom(m_socket,buffer,sz,0,
                                             (struct sockaddr *) &currCli,&clientLen));
         if (status > 0)
         {

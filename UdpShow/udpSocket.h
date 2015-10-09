@@ -33,7 +33,7 @@ namespace NUdpSocket
     //constant 
     static const TUDWord WAIT_FOREVER(-1);
     static const TUDWord MAX_NUM_CHARS(255);
-    static const TUDWord KINECT_FRAME_SIZE(640*480);
+    static const TUDWord KINECT_FRAME_GRAY_SIZE(640*480);
     static const TUDWord KINECT_FRAME_DEPTH_SIZE(640 * 480 * 2);
     static const TUDWord KINECT_FRAME_RGB_SIZE(640 * 480 * 3);
     
@@ -70,7 +70,7 @@ namespace NUdpSocket
         
         //ctor
         SSocketConfig(TString myIP,TString secIP, TSDWord aLocPort, TSDWord aTgtPort, 
-        TSDWord dataSize = KINECT_FRAME_SIZE,TString myName = "General UDP Socket",
+        TSDWord dataSize = KINECT_FRAME_GRAY_SIZE,TString myName = "General UDP Socket",
         TUDWord rcvBuffSize = BUFFER_128M, TUDWord trxBuffSize = BUFFER_128M)
         {
         	memset(locIP,0,MAX_NUM_CHARS);
@@ -132,7 +132,7 @@ namespace NUdpSocket
         //desc  : closes open socket
         //arg   : -  
         //return: true if open ok false if not 
-        ///////////////////////////////////////
+        ///////////////////////////////////////nt.cpp:9:
         bool closeSocket();
 
         ////////////////////////////////////////
