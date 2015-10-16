@@ -45,26 +45,41 @@ namespace NUdpMessages
                         padding(0)
 		{};
 	};
+        
+        struct SLine0 : public SHeader
+        {
+            NUdpSocket::TReal64 timeStamp;
+            
+            SLine0():
+                timeStamp(0.)
+            {};               
+        };
 
 	struct SAck : public SHeader
 	{
-		NUdpSocket::TReal64 timeStamp;
+            NUdpSocket::TReal64 timeStamp;
+            
+            SAck():
+                timeStamp(0.)
+            {};    
 	};
 
 	struct SStart : public SHeader
 	{
-		NUdpSocket::TReal64 timeStamp;
+            NUdpSocket::TReal64 timeStamp;
+            
+            SStart():
+                timeStamp(0.)
+            {};    
 	};
 
-	struct SFrameDep : public SHeader
+	struct SFrameDep : public SLine0
 	{
-		NUdpSocket::TReal64 timeStamp;
-		NUdpSocket::TUByte byteVector[NUdpSocket::KINECT_FRAME_GRAY_SIZE];
+            NUdpSocket::TUByte byteVector[NUdpSocket::KINECT_FRAME_GRAY_SIZE];
 	};
 
-	struct SFrameRGB : public SHeader
+	struct SFrameRGB : public SLine0
 	{
-		NUdpSocket::TReal64 timeStamp;
 		NUdpSocket::TUByte byteVector[NUdpSocket::KINECT_FRAME_RGB_SIZE];
 	};
 

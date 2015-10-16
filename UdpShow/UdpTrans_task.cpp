@@ -6,8 +6,8 @@ using namespace NUdpMessages;
 using namespace NUdpSocket;
 using namespace NSafeContainer;
 
-//constant that defines the timeout in mili sec
-static const unsigned int TIME_OUT = 2500;
+//constant that defines the timeout in micro sec
+static const unsigned int TIME_OUT = 33300;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Function Name: initAndRun

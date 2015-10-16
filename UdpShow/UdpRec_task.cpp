@@ -6,8 +6,8 @@ using namespace NUdpMessages;
 using namespace NUdpSocket;
 using namespace NSafeContainer;
 
-//constant that defines the timeout in mili sec
-static const unsigned int TIME_OUT = 2500;
+//constant that defines the timeout in micro sec
+static const unsigned int TIME_OUT = 33300;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Function Name: initAndRun
@@ -65,23 +65,27 @@ bool CUdpRecTask::initAndRun(NUdpSocket::CUdpSocket* otherSocket)
 bool CUdpRecTask::recAck(NUdpMessages::SHeader* buff)
 {
 	bool rv(true);
-	SAck ack;
+	SAck *ack; //temp pointer to full acl
+        
         
         std::lock_guard<std::mutex> guard(m_mutex);
         
-	TUDWord sz(sizeof(SAck) - sizeof(SHeader));
-	//buff += sizeof(SHeader); //move buffer
-
-	if (m_socket->reciveData(reinterpret_cast<TUByte*>(&(ack.timeStamp)), sz, TIME_OUT))
-	{
-		//buff -= sizeof(SHeader); //move back to the begining of the buffer
-		//SAck* ack = reinterpret_cast<SAck*>(buff);
-		m_ack.timeStamp = ack.timeStamp;
-	}
-	else
-	{
-		rv = false;
-	}
+        TReal64 ts(timeNow());
+        
+	ack = reinterpret_cast<SAck*>(buff);
+        
+        //if the timestamp that was recived larger then the one in the system
+        //if yes check if its not in the future.
+        if ((m_ack.timeStamp <= ack->timeStamp) && (ack->timeStamp <= ts))
+        {
+           m_ack.timeStamp = ack->timeStamp; 
+        }
+        else
+        {
+            printf("The ack was received with a wrong timestamp currTimestamp "
+                    "curr[%lf] rec[%lf] currTime[%lf] \n", m_ack.timeStamp, ack->timeStamp, ts);
+            rv = false;
+        }
 
 	return rv;
 }
@@ -153,7 +157,8 @@ bool CUdpRecTask::recFrame(NUdpMessages::SHeader* buff)
 	return rv;
 }
 
-///////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////
 // Function Name: recStart
 // Description:   rec the start msg
 // Output:        None
@@ -163,25 +168,28 @@ bool CUdpRecTask::recFrame(NUdpMessages::SHeader* buff)
 bool CUdpRecTask::recStart(NUdpMessages::SHeader* buff)
 {
 	bool rv(true);
+        SStart* start;
+        
 	std::lock_guard<std::mutex> guard(m_mutex);
+        
+        start = reinterpret_cast<SStart*>(buff);
+        
+        TReal64 ts(timeNow());
 
-	TUDWord sz(sizeof(SStart) - sizeof(SHeader));
-	buff += sizeof(SHeader); //move buffer
-
-	if (m_socket->reciveData(reinterpret_cast<TUByte*>(buff), sz, TIME_OUT))
-	{
-		buff -= sizeof(SHeader); //move back to the begining of the buffer
-		SStart* start = reinterpret_cast<SStart*>(buff);
-                            
-		m_start = *start;
-	}
-	else
-	{
-		rv = false;
-	}
-
-	return rv;
-                            
+	//if the timestamp that was recived larger then the one in the system
+        //if yes check if its not in the future.
+        if ((m_start.timeStamp <= start->timeStamp) && (start->timeStamp <= ts))
+        {
+           m_start.timeStamp = start->timeStamp; 
+        }
+        else
+        {
+            printf("The start was received with a wrong timestamp currTimestamp "
+                    "curr[%lf] rec[%lf] currTime[%lf] \n", m_start.timeStamp, start->timeStamp, ts);
+            rv = false;
+        }
+        
+	return rv;                      
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -208,15 +216,8 @@ void CUdpRecTask::mainFunc()
 		    m_newFrame = false;
 		}
 
-		sz = sizeof(SHeader);
+		sz = sizeof(SFrameRGB); // MAX MESSAGE SIZE
                 
-                
-                //SAck ack;
-                //TUDWord sz2 = sizeof(ack);
-                //m_socket->reciveData(reinterpret_cast<TUByte*>(&ack),sz,TIME_OUT);
-                
-                //sz2=8;
-                //m_socket->reciveData(reinterpret_cast<TUByte*>(&(ack.timeStamp)),sz2,TIME_OUT);
                 
 		//GET HEADER
 		if (m_socket->reciveData(reinterpret_cast<TUByte*>(data),sz,TIME_OUT))
@@ -240,7 +241,7 @@ void CUdpRecTask::mainFunc()
 			}
 			else
 			{
-				printf("Error reciving");
+				printf("Error receiving msg [%d]", ind);
 			}
 		}
 		else
