@@ -12,6 +12,7 @@
 #include "UdpRec_task.h"
 #include "UdpTrans_task.h"
 #include <mutex>
+#include "udpShow.h"
 
 using namespace cv;
 using namespace std;
@@ -35,7 +36,85 @@ CUdpRecTask g_recTask;
 //make sendrTask
 CUdpTransTask g_transTask;
 
-void showerDep()
+
+int main(int argc, char **argv) {
+	bool die(false);
+	printf("Hello im udpShow \n");
+        
+	//Mat RGB(Size(640,480),CV_8UC3);
+	//Mat jpgRead(Size(640,480),CV_8UC1);
+        //Mat depthf(Size(640,480),CV_8UC1);
+	//FILE* rcvdData;
+	//std::string winName("depth");
+//	std::string winName("RGB");
+	//std::string jpgLoad("jpg");
+	//namedWindow(winName,CV_WINDOW_AUTOSIZE);
+	//cv::imshow(winName,depthf);
+
+        SSocketConfig conf("10.0.0.1","10.0.0.2",50555,50555,
+			KINECT_FRAME_GRAY_SIZE,"IR IMAGE SOCKET", BUFFER_128M, BUFFER_512k);
+	
+
+        
+        bool result(g_recTask.initAndRun(conf));
+        result = result &&  g_transTask.initAndRun(g_recTask.getSocket());
+        
+        if (!result)
+        {
+            killEveryone(g_recTask,g_transTask);
+            return -1;     
+        }
+	
+	
+        //send start to all the jetsons (not active now))
+        if (!sendStartAndWaitForAck(&g_recTask,&g_transTask))
+        {
+            killEveryone(g_recTask, g_transTask);
+            return -1;
+        }
+	
+        std::thread showerThread(showerFunc);
+        
+	while (!die) 
+        {
+
+            TUDWord frameKey(70); //keys can only get to 64
+            if (g_recTask.getRecivedFrameKey(frameKey) == ESafeQueRetTypes::SUCCESS)
+            {
+               //depthf.data = (r(ecTask.getCellByKey(frameKey))->byteVector;
+                //std::lock_guard<std::mutex> guard(g_mutex);
+                g_rgb = g_recTask.getCellByKey(frameKey);
+               
+                if (g_rgb->size == KINECT_FRAME_GRAY_SIZE)
+                {
+                    g_depth = reinterpret_cast<NUdpMessages::SFrameDep*>(g_rgb);
+                    g_newFrameDEP = true;
+                    g_keyDEP = frameKey;
+                }
+                else if (g_depth->size == KINECT_FRAME_RGB_SIZE)
+                {
+                    g_newFrameRGB = true;
+                    g_keyRGB = frameKey;
+                }
+                  
+                /*depthf.data = (reinterpret_cast<NUdpMessages::SFrameDep*>(g_recTask.getCellByKey(frameKey)))->byteVector;
+                cv::imshow(winName,depthf);
+
+                cv::waitKey(1);
+                g_recTask.releaseCell(frameKey);*/
+                
+            }
+			
+	}
+        
+        killEveryone(g_recTask, g_transTask, showerThread);
+
+    return 0;
+}
+
+
+
+void showerFunc()
 {
     Mat depthf(Size(640,480),CV_8UC1);
     Mat rgbf(Size(640,480),CV_8UC3);
@@ -139,80 +218,3 @@ bool sendStartAndWaitForAck(CUdpRecTask* recTask, CUdpTransTask* tranTask)
     
     return rv;
 }
-
-
-
-int main(int argc, char **argv) {
-	bool die(false);
-	printf("Hello im udpShow \n");
-        
-	Mat RGB(Size(640,480),CV_8UC3);
-	//Mat jpgRead(Size(640,480),CV_8UC1);
-        //Mat depthf(Size(640,480),CV_8UC1);
-	//FILE* rcvdData;
-	//std::string winName("depth");
-//	std::string winName("RGB");
-	//std::string jpgLoad("jpg");
-	//namedWindow(winName,CV_WINDOW_AUTOSIZE);
-	//cv::imshow(winName,depthf);
-
-        SSocketConfig conf("10.0.0.1","10.0.0.2",50555,50555,
-			KINECT_FRAME_GRAY_SIZE,"IR IMAGE SOCKET", BUFFER_128M, BUFFER_512k);
-	
-
-        
-        bool result(g_recTask.initAndRun(conf));
-        result = result &&  g_transTask.initAndRun(g_recTask.getSocket());
-        
-        if (!result)
-        {
-            return -1;
-        }
-	
-	
-        //send start to all the jetsons (not active now))
-        if (!sendStartAndWaitForAck(&g_recTask,&g_transTask))
-        {
-            return -1;
-        }
-	
-        std::thread showerThread(showerDep);
-        
-	while (!die) 
-        {
-
-            TUDWord frameKey(70); //keys can only get to 64
-            if (g_recTask.getRecivedFrameKey(frameKey) == ESafeQueRetTypes::SUCCESS)
-            {
-               //depthf.data = (r(ecTask.getCellByKey(frameKey))->byteVector;
-                //std::lock_guard<std::mutex> guard(g_mutex);
-                g_rgb = g_recTask.getCellByKey(frameKey);
-               
-                if (g_rgb->size == KINECT_FRAME_GRAY_SIZE)
-                {
-                    g_depth = reinterpret_cast<NUdpMessages::SFrameDep*>(g_rgb);
-                    g_newFrameDEP = true;
-                    g_keyDEP = frameKey;
-                }
-                else if (g_depth->size == KINECT_FRAME_RGB_SIZE)
-                {
-                    g_newFrameRGB = true;
-                    g_keyRGB = frameKey;
-                }
-                  
-                /*depthf.data = (reinterpret_cast<NUdpMessages::SFrameDep*>(g_recTask.getCellByKey(frameKey)))->byteVector;
-                cv::imshow(winName,depthf);
-
-                cv::waitKey(1);
-                g_recTask.releaseCell(frameKey);*/
-                
-            }
-			
-	}
-        
-        g_recTask.kill();
-        showerThread.join();
-
-    return 0;
-}
-

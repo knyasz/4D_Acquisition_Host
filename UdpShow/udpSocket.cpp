@@ -222,7 +222,7 @@ bool CUdpSocket::reciveData( TUByte*  buffer, TUDWord& size,TSDWord to)
                                             (struct sockaddr *) &currCli,&clientLen));
         if (status > 0)
         {
-        	size=status;
+            size=status;
             if (m_tgtAdd.sin_addr.s_addr == currCli.sin_addr.s_addr)
             {
                 rv = true;

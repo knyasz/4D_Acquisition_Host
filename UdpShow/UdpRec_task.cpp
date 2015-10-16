@@ -224,7 +224,7 @@ void CUdpRecTask::mainFunc()
 		{	
                         if (data->sync != 0xA5A5)
                         {
-                            printf("Sync wasnt found in the recived message \n");
+                            printf("Sync wasn't found in the received message \n");
                             continue;
                         }
 			NUdpSocket::TUDWord ind = toIndex(translateOpCode(static_cast<EOpCodesSend>(data->opCode)));
