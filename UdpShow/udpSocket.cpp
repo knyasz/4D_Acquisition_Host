@@ -117,7 +117,7 @@ bool CUdpSocket::openSocket()
           rv = false;
          }
 
-         res = setsockopt(m_socket, SOL_SOCKET, SO_RCVBUF,&m_rxBuffSize,optLen);
+         //res = setsockopt(m_socket, SOL_SOCKET, SO_RCVBUF,&m_rxBuffSize,optLen);
          if (res != 0)
          {
            (void)handelError(res);

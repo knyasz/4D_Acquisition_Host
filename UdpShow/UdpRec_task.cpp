@@ -7,7 +7,7 @@ using namespace NUdpSocket;
 using namespace NSafeContainer;
 
 //constant that defines the timeout in micro sec
-static const unsigned int TIME_OUT = 33300;
+static const unsigned int TIME_OUT = 62500;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Function Name: initAndRun
@@ -77,7 +77,7 @@ bool CUdpRecTask::recAck(NUdpMessages::SHeader* buff)
         
         //if the timestamp that was recived larger then the one in the system
         //if yes check if its not in the future.
-        if ((m_ack.timeStamp <= ack->timeStamp) && (ack->timeStamp <= ts))
+        if ((m_ack.timeStamp <= ack->timeStamp) && (abs(ack->timeStamp -ts) <= 0.001))
         {
            m_ack.timeStamp = ack->timeStamp; 
         }
@@ -179,7 +179,7 @@ bool CUdpRecTask::recStart(NUdpMessages::SHeader* buff)
 
 	//if the timestamp that was recived larger then the one in the system
         //if yes check if its not in the future.
-        if ((m_start.timeStamp <= start->timeStamp) && (start->timeStamp <= ts))
+        if ((m_start.timeStamp <= start->timeStamp) && (abs(start->timeStamp - ts) <= 0.001))
         {
            m_start.timeStamp = start->timeStamp; 
         }
@@ -204,7 +204,7 @@ void CUdpRecTask::mainFunc()
 {
 	m_alive = true;
 
-	m_safeCar.create(65); //create 65 cells (we want to recive 30 frames/s so we will give duble that size)
+	m_safeCar.create(1000); //create 65 cells (we want to recive 30 frames/s so we will give duble that size)
 
 	while (m_alive)
 	{
@@ -213,11 +213,15 @@ void CUdpRecTask::mainFunc()
 
 		if (m_newFrame)
 		{
-                    data = m_safeCar.giveCell(m_workingKey);
+                    data = nullptr;
+                    while (data == nullptr)
+                    {      
+                        data = m_safeCar.giveCell(m_workingKey);
+                    }
 		    m_newFrame = false;
 		}
 
-		sz = sizeof(SFrameRGB); // MAX MESSAGE SIZE
+		sz = sizeof(SLine0); // MAX MESSAGE SIZE
                 
                 
 		//GET HEADER

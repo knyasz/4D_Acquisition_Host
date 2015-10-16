@@ -7,11 +7,12 @@
 #include <highgui.h>
 #include "udpSocket.h"
 #include <unistd.h>
-#include <string>
 #include "Messages.h"
 #include "UdpRec_task.h"
 #include "UdpTrans_task.h"
 #include <mutex>
+#include <map>
+#include <utility>
 #include "udpShow.h"
 
 using namespace cv;
@@ -41,7 +42,7 @@ int main(int argc, char **argv) {
 	bool die(false);
 	printf("Hello im udpShow \n");
         
-	//Mat RGB(Size(640,480),CV_8UC3);
+	//Mat RGB(Size(640static TUDWord fameCount(0);,480),CV_8UC3);
 	//Mat jpgRead(Size(640,480),CV_8UC1);
         //Mat depthf(Size(640,480),CV_8UC1);
 	//FILE* rcvdData;
@@ -82,7 +83,7 @@ int main(int argc, char **argv) {
             if (g_recTask.getRecivedFrameKey(frameKey) == ESafeQueRetTypes::SUCCESS)
             {
                //depthf.data = (r(ecTask.getCellByKey(frameKey))->byteVector;
-                //std::lock_guard<std::mutex> guard(g_mutex);
+                std::lock_guard<std::mutex> guard(g_mutex);
                 g_rgb = g_recTask.getCellByKey(frameKey);
                
                 if (g_rgb->size == KINECT_FRAME_GRAY_SIZE)
@@ -113,6 +114,33 @@ int main(int argc, char **argv) {
 }
 
 
+void countAndShowFrameCount(std::string name)
+{
+    static std::map<std::string,TUDWord> counter;
+    static bool isInit(false);
+    
+    if (!isInit)
+    {
+        counter["Depth"] = 0;
+        counter["RGB"] = 0;
+        isInit = true;
+    }
+    
+    static TReal64 tt(timeNow());
+    
+    ++counter[name];
+    
+    TReal64 curTT(timeNow());
+    
+    if (curTT - tt >= 1)
+    {
+        printf("Successfully transmitted [%d] Depth frames\n", counter["Depth"]);
+        printf("Successfully transmitted [%d] Rgb frames\n", counter["RGB"]);
+        tt = curTT;
+        counter["Depth"] = 0;
+        counter["RGB"] = 0;   
+    }
+}
 
 void showerFunc()
 {
@@ -123,6 +151,7 @@ void showerFunc()
     namedWindow(winNameDep,CV_WINDOW_AUTOSIZE);
     namedWindow(winNameRgb,CV_WINDOW_AUTOSIZE);
     
+    
     TUDWord oldKeyDep(70);
     TUDWord oldKeyRgb(70);
     
@@ -130,21 +159,27 @@ void showerFunc()
     {
         //cs
         {
-            //std::lock_guard<std::mutex> guard(g_mutex);
+            std::lock_guard<std::mutex> guard(g_mutex);
             if (g_newFrameDEP)
             {
+                printf("release cell dep [%d] \n", oldKeyDep);
                 g_recTask.releaseCell(oldKeyDep);
                 oldKeyDep = g_keyDEP;
+                printf("got new key for cell dep [%d] \n", oldKeyDep);
                 depthf.data = g_depth->byteVector;
                 g_newFrameDEP = false;
+                //countAndShowFrameCount(std::move("Depth"));
             }
             
             if (g_newFrameRGB)
             {
+                printf("release cell rgb [%d] \n", oldKeyRgb);
                 g_recTask.releaseCell(oldKeyRgb);
                 oldKeyRgb = g_keyRGB;
+                printf("got new key for cell rgb [%d] \n", oldKeyRgb);
                 rgbf.data = g_rgb->byteVector;
                 g_newFrameRGB = false;
+                //countAndShowFrameCount(std::move("RGB"));
             }
                
         }
@@ -199,7 +234,7 @@ bool sendStartAndWaitForAck(CUdpRecTask* recTask, CUdpTransTask* tranTask)
         
         std::this_thread::sleep_for(std::chrono::milliseconds(500)); //give time to replay
 
-        while ((failCounter < 3) && (!rv))
+        while ((failCounter < 60) && (!rv)) //try to connect for a minute then bail
         {
            if (recTask->getLastAckTT() >=  tt)
            {
