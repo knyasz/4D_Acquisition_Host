@@ -21,7 +21,8 @@ bool CUdpTransTask::initAndRun(SSocketConfig& config)
 {
 	bool rv(false);
 
-        m_socket.reset(new NUdpSocket::CUdpSocket);
+        //m_socket.reset(new NUdpSocket::CUdpSocket);
+        m_socket = std::make_shared<NUdpSocket::CUdpSocket>();
         
 	if (m_socket->configureSocket(config))
 	{
@@ -43,11 +44,11 @@ bool CUdpTransTask::initAndRun(SSocketConfig& config)
 //				  
 // Return:        true on ok started / false on problem detected 
 ///////////////////////////////////////////////////////////////////////////////
-bool CUdpTransTask::initAndRun(NUdpSocket::CUdpSocket* otherSocket)
+bool CUdpTransTask::initAndRun(const std::shared_ptr<NUdpSocket::CUdpSocket>& otherSocket)
 {
     bool rv(true);
     
-    m_socket.reset(otherSocket);
+    m_socket = otherSocket;
     m_thread.reset(new std::thread([this](){this->mainFunc();}));
     
     return rv;

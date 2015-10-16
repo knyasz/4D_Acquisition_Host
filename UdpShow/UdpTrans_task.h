@@ -44,7 +44,7 @@ public:
 	//				  
 	// Return:        true on ok started / false on problem detected 
 	///////////////////////////////////////////////////////////////////////////////
-	bool initAndRun(NUdpSocket::CUdpSocket* otherSocket);
+	bool initAndRun(const std::shared_ptr<NUdpSocket::CUdpSocket>& otherSocket);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Function Name: initAndRun
@@ -111,10 +111,15 @@ public:
 	// In:            none
 	// Return:        this class socket
 	///////////////////////////////////////////////////////////////////////////////
-	NUdpSocket::CUdpSocket* getSocket()
+	/*NUdpSocket::CUdpSocket* getSocket()
 	{
             return m_socket.get();
+	}*/
+        std::shared_ptr<NUdpSocket::CUdpSocket> getSocket()
+	{
+            return m_socket;
 	}
+        
         
 private:
 	///////////////////////////////////////////////////////////////////////////////
