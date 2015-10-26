@@ -46,10 +46,12 @@ int main(int argc, char **argv) {
 	//Mat jpgRead(Size(640,480),CV_8UC1);
         //Mat depthf(Size(640,480),CV_8UC1);
 	//FILE* rcvdData;
-	//std::string winName("depth");
-//	std::string winName("RGB");
+	std::string winName("depth");
+	//std::string winName("RGB");
 	//std::string jpgLoad("jpg");
-	//namedWindow(winName,CV_WINDOW_AUTOSIZE);
+	namedWindow(winName,CV_WINDOW_AUTOSIZE);
+        Mat depthf(Size(640,480),CV_8UC1);
+        Mat rgbf(Size(640,480),CV_8UC3);
 	//cv::imshow(winName,depthf);
 
         SSocketConfig conf("10.0.0.1","10.0.0.2",50555,50555,
@@ -74,23 +76,26 @@ int main(int argc, char **argv) {
             return -1;
         }
 	
-        std::thread showerThread(showerFunc);
+        //std::thread showerThread(showerFunc);
         
 	while (!die) 
         {
 
-            TUDWord frameKey(70); //keys can only get to 64
+            TUDWord frameKey(10000); //keys can only get to 64
             if (g_recTask.getRecivedFrameKey(frameKey) == ESafeQueRetTypes::SUCCESS)
             {
                //depthf.data = (r(ecTask.getCellByKey(frameKey))->byteVector;
-                std::lock_guard<std::mutex> guard(g_mutex);
+                //std::lock_guard<std::mutex> guard(g_mutex);
                 g_rgb = g_recTask.getCellByKey(frameKey);
                
                 if (g_rgb->size == KINECT_FRAME_GRAY_SIZE)
                 {
-                    g_depth = reinterpret_cast<NUdpMessages::SFrameDep*>(g_rgb);
+                    /*g_depth = reinterpret_cast<NUdpMessages::SFrameDep*>(g_rgb);
+                   
                     g_newFrameDEP = true;
-                    g_keyDEP = frameKey;
+                    g_keyDEP = frameKey;*/
+                    depthf.data = (reinterpret_cast<NUdpMessages::SFrameDep*>(g_recTask.getCellByKey(frameKey)))->byteVector;
+                    g_recTask.releaseCell(frameKey);
                 }
                 else if (g_depth->size == KINECT_FRAME_RGB_SIZE)
                 {
@@ -98,17 +103,17 @@ int main(int argc, char **argv) {
                     g_keyRGB = frameKey;
                 }
                   
-                /*depthf.data = (reinterpret_cast<NUdpMessages::SFrameDep*>(g_recTask.getCellByKey(frameKey)))->byteVector;
+               //depthf.data = (reinterpret_cast<NUdpMessages::SFrameDep*>(g_recTask.getCellByKey(frameKey)))->byteVector;
                 cv::imshow(winName,depthf);
 
                 cv::waitKey(1);
-                g_recTask.releaseCell(frameKey);*/
+                //g_recTask.releaseCell(frameKey);
                 
             }
 			
 	}
         
-        killEveryone(g_recTask, g_transTask, showerThread);
+        killEveryone(g_recTask, g_transTask/*, showerThread*/);
 
     return 0;
 }
