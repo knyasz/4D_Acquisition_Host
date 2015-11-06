@@ -72,6 +72,7 @@ int main(int argc, char **argv) {
         //send start to all the jetsons (not active now))
         if (!sendStartAndWaitForAck(&g_recTask,&g_transTask))
         {
+            printf("The clients are not answering killing proccess");
             killEveryone(g_recTask, g_transTask);
             return -1;
         }
@@ -131,11 +132,11 @@ void countAndShowFrameCount(std::string name)
         isInit = true;
     }
     
-    static TReal64 tt(timeNow());
+    static TReal64 tt(NUdpMessages::timeNow());
     
     ++counter[name];
     
-    TReal64 curTT(timeNow());
+    TReal64 curTT(NUdpMessages::timeNow());
     
     if (curTT - tt >= 1)
     {
@@ -235,21 +236,20 @@ bool sendStartAndWaitForAck(CUdpRecTask* recTask, CUdpTransTask* tranTask)
      {
             
         TUDWord failCounter(0);
-        TReal64 tt(timeNow());
-        
+
         std::this_thread::sleep_for(std::chrono::milliseconds(500)); //give time to replay
 
         while ((failCounter < 60) && (!rv)) //try to connect for a minute then bail
         {
-           if (recTask->getLastAckTT() >=  tt)
+           if (NUdpMessages::isWithinTimeDelta(recTask->getLastAckTT()))
            {
                rv = true;
            }
            else
            {
                failCounter++;
+               printf("Couldnt get the ack failed:[%d] \n",failCounter);
                tranTask->sendMsg(NUdpMessages::OP_START_SND);
-               tt = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
                std::this_thread::sleep_for(std::chrono::milliseconds(500));
            }
         }            
