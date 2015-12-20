@@ -46,10 +46,35 @@ namespace NUdpMessages
 		{};
 	};
         
+        enum EKinect : NUdpSocket::TUDWord
+        {
+            KINECT_0 = 0,
+            KINECT_1,
+            KINECT_2,
+            KINECT_3,
+            
+            /////////////////////////// Future kinect ////////////
+            KINECT_4,
+            KINECT_5,
+            KINECT_6,
+            KINECT_7,
+            KINECT_8,
+            KINECT_9,
+            KINECT_10,
+            KINECT_11,
+            KINECT_12,
+            KINECT_13,
+            KINECT_14,
+            KINECT_15,
+            KINECT_16,
+            KINECT_17,
+            KINECT_18
+            /////////////////////////////////////////////////////////        
+        };
+        
         struct SLine0 : public SHeader
         {
             NUdpSocket::TReal64 timeStamp;
-            
             SLine0():
                 timeStamp(0.)
             {};               

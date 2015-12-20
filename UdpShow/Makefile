@@ -12,7 +12,7 @@ CFLAGS= -std=c++11  -fPIC -g -Wall `pkg-config --cflags opencv`
 LIBS = `pkg-config --libs opencv`
 INCLUDE = -I/usr/include/libfreenect
 FREE_LIBS = -L/usr/lib -lfreenect
-CUFFT_LIB = -L/usr/local/cuda/lib64/ -lcufft
+CUFFT_LIB = -L/usr/local/cuda/lib64/ -lcufft  -lcudart
 #OBJS = tinyxml.o udpShow.o udpSocket.o
 OBJS = tinyxml.o udpShow.o udpSocket.o UdpRec_task.o UdpTrans_task.o tinyxmlparser.o tinyxmlerror.o tinystr.o 
 OBJSSOCK = tinyxml.o tinyxmlparser.o tinyxmlerror.o tinystr.o udpSocket.o

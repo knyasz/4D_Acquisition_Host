@@ -97,11 +97,13 @@ int main(int argc, char **argv) {
                     g_keyDEP = frameKey;*/
                     depthf.data = (reinterpret_cast<NUdpMessages::SFrameDep*>(g_recTask.getCellByKey(frameKey)))->byteVector;
                     g_recTask.releaseCell(frameKey);
+                    countAndShowFrameCount(std::move("Depth"));
                 }
                 else if (g_depth->size == KINECT_FRAME_RGB_SIZE)
                 {
                     g_newFrameRGB = true;
                     g_keyRGB = frameKey;
+                    countAndShowFrameCount(std::move("RGB"));
                 }
                   
                //depthf.data = (reinterpret_cast<NUdpMessages::SFrameDep*>(g_recTask.getCellByKey(frameKey)))->byteVector;
