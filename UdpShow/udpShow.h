@@ -11,6 +11,44 @@
 #include <string>
 #include "udpSocket.h"
 
+//pre declaration of types
+class CUdpRecTask;
+
+
+//template configuration of the shower threads
+template <typename TPostProccess, typename TMatType>
+struct SShowerConfig
+{
+    SShowerConfig(std::string& a_winName, CUdpRecTask& a_recTask, TMatType& a_mat,TPostProccess a_post):
+    winName(a_winName), recTask(a_recTask), mat(a_mat), postProcess(std::move(a_post))
+    {};
+    
+    std::string winName;
+    CUdpRecTask& recTask;
+    TMatType& mat; 
+    TPostProccess postProcess;
+};
+
+
+//template function that will be used as the shower thread
+template <typename TShoweConf>
+void shower(TShoweConf conf)
+{
+    NUdpSocket::TUDWord frameKey(1000); //cant get here
+    
+    while (1)
+    {
+        if ((conf.recTask.getRecivedFrameKey(frameKey) == NSafeContainer::ESafeQueRetTypes::SUCCESS))
+        {
+            conf.mat.data = conf.postProcess(conf.recTask.getCellByKey(frameKey));
+            conf.recTask.releaseCell(frameKey);
+            cv::imshow(conf.winName,conf.mat);
+        }
+        
+        cv::waitKey(1);
+    }
+}
+
 //template functions to kill all threads with the help of variadic templates
 //just send it all the threads and special thread you want to kill and it will kill them recursivly.
 //the killThread is specialized to kill special threads with the kill command and std::threads with join
