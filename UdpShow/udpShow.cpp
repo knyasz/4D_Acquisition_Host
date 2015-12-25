@@ -13,6 +13,7 @@
 #include <mutex>
 #include <map>
 #include <utility>
+#include <X11/Xlib.h>
 #include "udpShow.h"
 
 using namespace cv;
@@ -42,6 +43,7 @@ CUdpTransTask g_transTask;
 
 
 int main(int argc, char **argv) {
+        XInitThreads(); //init linux graphics threads
 	bool die(false);
 	printf("Hello im udpShow \n");
         
@@ -53,7 +55,7 @@ int main(int argc, char **argv) {
 	std::string winNameRGB("RGB");
 	//std::string jpgLoad("jpg");
 	namedWindow(winName,CV_WINDOW_AUTOSIZE);
-        namedWindow(winNameRGB,CV_WINDOW_AUTOSIZE);
+        //namedWindow(winNameRGB,CV_WINDOW_AUTOSIZE);
         Mat depthf(Size(640,480),CV_8UC1);
         Mat rgbf(Size(640,480),CV_8UC3);
 	//cv::imshow(winName,depthf);
@@ -61,12 +63,12 @@ int main(int argc, char **argv) {
         SSocketConfig conf("10.0.0.1","10.0.0.2",50555,50555,
 			KINECT_FRAME_GRAY_SIZE,"IR IMAGE SOCKET", BUFFER_128M, BUFFER_512k);
 	
-        SSocketConfig confRGB("10.0.0.1","10.0.0.2",70777,70777,
-			KINECT_FRAME_GRAY_SIZE,"RGB IMAGE SOCKET", BUFFER_128M, BUFFER_512k);
+        //SSocketConfig confRGB("10.0.0.1","10.0.0.2",70777,70777,
+	//		KINECT_FRAME_GRAY_SIZE,"RGB IMAGE SOCKET", BUFFER_128M, BUFFER_512k);
         
         bool result(g_recTask.initAndRun(conf));
         result = result &&  g_transTask.initAndRun(g_recTask.getSocket());
-        result = result && g_recTaskRGB.initAndRun(confRGB);
+        //result = result && g_recTaskRGB.initAndRun(confRGB);
         
         if (!result)
         {
@@ -92,13 +94,13 @@ int main(int argc, char **argv) {
         SShowerConfig<decltype(postProc),decltype(depthf)> confDepShow(winName, g_recTask, depthf,std::move(postProc));
         std::thread showerDepth(shower<decltype(confDepShow)>,std::move(confDepShow));
         
-        auto postProcRGB = [](NUdpMessages::SFrameRGB* frame)->NUdpSocket::TUByte*
+        /*auto postProcRGB = [](NUdpMessages::SFrameRGB* frame)->NUdpSocket::TUByte*
         {
             countAndShowFrameCount(std::move("RGB"));
             return frame->byteVector;
         };
         SShowerConfig<decltype(postProcRGB), decltype(rgbf)> confRGBShow(winNameRGB, g_recTaskRGB, rgbf, std::move(postProcRGB));
-        std::thread showerRGB(shower<decltype(confRGBShow)>, std::move(confRGBShow));
+        std::thread showerRGB(shower<decltype(confRGBShow)>, std::move(confRGBShow));*/
         
 	while (!die) 
         {
@@ -139,7 +141,7 @@ int main(int argc, char **argv) {
 			
 	}
         
-        killEveryone(g_recTask, g_transTask, showerDepth, showerRGB/*, showerThread*/);
+        killEveryone(g_recTask, g_transTask, showerDepth /*, showerRGB, showerThread*/);
 
     return 0;
 }
@@ -166,7 +168,7 @@ void countAndShowFrameCount(std::string name)
     if (curTT - tt >= 1)
     {
         printf("Successfully transmitted [%d] Depth frames\n", counter["Depth"]);
-        printf("Successfully transmitted [%d] Rgb frames\n", counter["RGB"]);
+        //printf("Successfully transmitted [%d] Rgb frames\n", counter["RGB"]);
         tt = curTT;
         counter["Depth"] = 0;
         counter["RGB"] = 0;   

@@ -127,7 +127,7 @@ namespace NUdpMessages
         
         static bool isWithinTimeDelta(NUdpSocket::TReal64 time2Check)
         {
-            static const NUdpSocket::TReal64 DELTA(/*0.003*/1); //sec
+            static const NUdpSocket::TReal64 DELTA(0.003); //sec
             bool rv(false);
             NUdpSocket::TReal64 ttNow(timeNow());
             

@@ -11,6 +11,7 @@
 #include <string>
 #include "udpSocket.h"
 
+
 //pre declaration of types
 class CUdpRecTask;
 
@@ -41,8 +42,8 @@ void shower(TShoweConf conf)
         if ((conf.recTask.getRecivedFrameKey(frameKey) == NSafeContainer::ESafeQueRetTypes::SUCCESS))
         {
             conf.mat.data = conf.postProcess(conf.recTask.getCellByKey(frameKey));
-            conf.recTask.releaseCell(frameKey);
             cv::imshow(conf.winName,conf.mat);
+            conf.recTask.releaseCell(frameKey);
         }
         
         cv::waitKey(1);

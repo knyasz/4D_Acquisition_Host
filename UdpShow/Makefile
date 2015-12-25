@@ -19,7 +19,7 @@ OBJSSOCK = tinyxml.o tinyxmlparser.o tinyxmlerror.o tinystr.o udpSocket.o
 
 #udpShow: tinyxml.cpp tinyxmlparser.cpp tinyxmlerror.cpp tinystr.cpp udpSocket.cpp udpShow.cpp 
 udpShow: $(OBJS) 
-	g++-4.9 $(CFLAGS) $? -o $@  $(LIBS) $(FREE_LIBS) $(CUFFT_LIB)
+	g++-4.9 $(CFLAGS) $? -o $@  $(LIBS) $(FREE_LIBS) $(CUFFT_LIB) -lX11
 	ld -r -o udpSocket64bit.o $(OBJSSOCK)
 	ar rvs udpSocket64bit.a udpSocket64bit.o
 	

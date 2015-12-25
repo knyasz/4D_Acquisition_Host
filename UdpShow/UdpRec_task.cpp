@@ -154,6 +154,13 @@ bool CUdpRecTask::recFrame(NUdpMessages::SHeader* buff)
 			rv = false;
 		}
 	}
+        
+        if (rv)
+        {
+            m_bytesWritten = 0;
+	    m_newFrame = true;
+            m_keyQue.push(m_workingKey);
+        }
 
 	return rv;
 }
@@ -236,13 +243,13 @@ void CUdpRecTask::mainFunc()
 
 			if (((ind >= 0) && (ind < OP_REC_COUNT)) && (m_funArr[ind](data)))
 			{
-                            
-				if (m_bytesWritten >= data->size)
+                            // if all good just continue
+				/*if (m_bytesWritten >= data->size)
 				{
 					m_bytesWritten = 0;
 					m_keyQue.push(m_workingKey);
 					m_newFrame = true;
-				}
+				}*/
 			}
 			else
 			{
