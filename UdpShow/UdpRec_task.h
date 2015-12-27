@@ -69,7 +69,7 @@ public:
 	///////////////////////////////////////////////////////////////////////////////
 	NSafeContainer::ESafeQueRetTypes getRecivedFrameKey(NUdpSocket::TUDWord& key)
 	{
-           return m_keyQue.pop(key,40);  //give it 60 miliseconds then bail (1 sec = 1000 mili  with 30 frames we need 34 mseconds to get a cell)
+           return m_keyQue.pop(key,1000); //if no frame is arived freeze it for a second
 	}
         
         

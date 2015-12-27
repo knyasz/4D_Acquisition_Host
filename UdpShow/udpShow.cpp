@@ -63,12 +63,12 @@ int main(int argc, char **argv) {
         SSocketConfig conf("10.0.0.1","10.0.0.2",50555,50555,
 			KINECT_FRAME_GRAY_SIZE,"IR IMAGE SOCKET", BUFFER_128M, BUFFER_512k);
 	
-        //SSocketConfig confRGB("10.0.0.1","10.0.0.2",70777,70777,
-	//		KINECT_FRAME_GRAY_SIZE,"RGB IMAGE SOCKET", BUFFER_128M, BUFFER_512k);
+        SSocketConfig confRGB("10.0.0.1","10.0.0.2",70777,70777,
+			KINECT_FRAME_GRAY_SIZE,"RGB IMAGE SOCKET", BUFFER_128M, BUFFER_512k);
         
         bool result(g_recTask.initAndRun(conf));
         result = result &&  g_transTask.initAndRun(g_recTask.getSocket());
-        //result = result && g_recTaskRGB.initAndRun(confRGB);
+        result = result && g_recTaskRGB.initAndRun(confRGB);
         
         if (!result)
         {
@@ -94,13 +94,13 @@ int main(int argc, char **argv) {
         SShowerConfig<decltype(postProc),decltype(depthf)> confDepShow(winName, g_recTask, depthf,std::move(postProc));
         std::thread showerDepth(shower<decltype(confDepShow)>,std::move(confDepShow));
         
-        /*auto postProcRGB = [](NUdpMessages::SFrameRGB* frame)->NUdpSocket::TUByte*
+        auto postProcRGB = [](NUdpMessages::SFrameRGB* frame)->NUdpSocket::TUByte*
         {
             countAndShowFrameCount(std::move("RGB"));
             return frame->byteVector;
         };
         SShowerConfig<decltype(postProcRGB), decltype(rgbf)> confRGBShow(winNameRGB, g_recTaskRGB, rgbf, std::move(postProcRGB));
-        std::thread showerRGB(shower<decltype(confRGBShow)>, std::move(confRGBShow));*/
+        std::thread showerRGB(shower<decltype(confRGBShow)>, std::move(confRGBShow));
         
 	while (!die) 
         {
