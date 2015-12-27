@@ -69,7 +69,7 @@ public:
 	///////////////////////////////////////////////////////////////////////////////
 	NSafeContainer::ESafeQueRetTypes getRecivedFrameKey(NUdpSocket::TUDWord& key)
 	{
-           return m_keyQue.pop(key,1000); //if no frame is arived freeze it for a second
+           return m_keyQue.pop(key); //if no frame is arived freeze it for a second
 	}
         
         
