@@ -8,6 +8,7 @@ using namespace NSafeContainer;
 
 //constant that defines the timeout in micro sec
 static const unsigned int TIME_OUT = 33300;
+static const unsigned int LONG_SLEEP = 60000; //ONE MINUTE
 
 ///////////////////////////////////////////////////////////////////////////////
 // Function Name: initAndRun
@@ -71,7 +72,7 @@ void CUdpTransTask::mainFunc()
 	{
 		EOpCodesSend opCod;
 
-		if (m_queue.pop(opCod, TIME_OUT) == ESafeQueRetTypes::SUCCESS)
+		if (m_queue.pop(opCod, LONG_SLEEP) == ESafeQueRetTypes::SUCCESS)
 		{
 			m_funArr[toIndex(opCod)]();
 		}

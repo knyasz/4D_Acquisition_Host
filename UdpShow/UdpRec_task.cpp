@@ -8,6 +8,7 @@ using namespace NSafeContainer;
 
 //constant that defines the timeout in micro sec
 static const unsigned int TIME_OUT = 62500;
+static const unsigned int LONG_SLEEP = 60000000; //ONE MINUTE
 
 ///////////////////////////////////////////////////////////////////////////////
 // Function Name: initAndRun
@@ -232,7 +233,7 @@ void CUdpRecTask::mainFunc()
                 
                 
 		//GET HEADER
-		if (m_socket->reciveData(reinterpret_cast<TUByte*>(data),sz,TIME_OUT))
+		if (m_socket->reciveData(reinterpret_cast<TUByte*>(data),sz,LONG_SLEEP))
 		{	
                         if (data->sync != 0xA5A5)
                         {
