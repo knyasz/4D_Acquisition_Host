@@ -143,7 +143,8 @@ bool CUdpRecTask::recFrame(NUdpMessages::SHeader* buff)
 		//frameBuffer += m_bytesWritten;
 		sz = buff->size;
 
-		if (m_socket->reciveData(reinterpret_cast<TUByte*>(frameBuffer), sz, TIME_OUT))
+		if (m_socket->reciveData(reinterpret_cast<TUByte*>(frameBuffer), sz, TIME_OUT) 
+                        && (reinterpret_cast<SHeader*>(frameBuffer)->sync != 0xA5A5))
 		{
 			m_bytesWritten += sz;
                         frameBuffer += sz;
